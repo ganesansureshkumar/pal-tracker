@@ -44,14 +44,16 @@ jobs:
         name: pal-tracker
     - name: Deploy to cf
       run: |
-        cf login -a "$CF_API_URL" -o "$CF_ORG" -s "$CF_SPACE" -u "$CF_USERNAME" -p "$CF_PASSWORD"
+        cf api "$CF_API_URL"
+        cf auth
+        cf target -o "$CF_ORG" -s "$CF_SPACE"
         cf push -p ./pal-tracker/pal-tracker.jar
       env:
-        CF_API_URL: https://api.run.pivotal.io
-        CF_ORG: uki-engineering
-        CF_SPACE: SureshkumarG
-        CF_USERNAME: sureshkumar.g6@cognizant.com
-        CF_PASSWORD: Iswarya@1982
+        CF_API_URL: ${{ secrets.CF_API_URL }}
+        CF_ORG: ${{ secrets.CF_ORG }}
+        CF_SPACE: ${{ secrets.CF_SPACE }}
+        CF_USERNAME: ${{ secrets.CF_USERNAME }}
+        CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
 
   migrate-database:
     needs: deploy
@@ -67,11 +69,13 @@ jobs:
         curl https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/5.2.1/flyway-commandline-5.2.1-linux-x64.tar.gz | tar xvz
     - name: Migrate tracker-database
       run: |
-        cf login -a "$CF_API_URL" -o "$CF_ORG" -s "$CF_SPACE" -u "$CF_USERNAME" -p "$CF_PASSWORD"
+        cf api "$CF_API_URL"
+        cf auth
+        cf target -o "$CF_ORG" -s "$CF_SPACE"
         scripts/migrate-databases.sh pal-tracker .
       env:
-        CF_API_URL: https://api.run.pivotal.io
-        CF_ORG: uki-engineering
-        CF_SPACE: SureshkumarG
-        CF_USERNAME: sureshkumar.g6@cognizant.com
-        CF_PASSWORD: Iswarya@1982
+        CF_API_URL: ${{ secrets.CF_API_URL }}
+        CF_ORG: ${{ secrets.CF_ORG }}
+        CF_SPACE: ${{ secrets.CF_SPACE }}
+        CF_USERNAME: ${{ secrets.CF_USERNAME }}
+        CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
